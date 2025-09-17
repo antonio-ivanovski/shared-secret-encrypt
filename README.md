@@ -130,6 +130,17 @@ The application requires modern browsers that support:
 - ES6+ JavaScript features
 - React 19 features
 
+## Future Enhancements
+
+- [ ] **Backend Integration**: Add optional backend for secret storage and retrieval
+- [ ] **Prevent Premature Decryption**: Implement mechanism to prevent decryption before a certain date or event (ex: death). 
+- [ ] **Updatable Secret**: Allow user to update the content of the secret without changing the shares.
+- [ ] **Shares Rotation**: Implement functionality to rotate shares without changing the secret.
+- [ ] **Improved UX**: Enhance user interface and experience with better error handling and guidance.
+- [ ] **Additional Cryptographic Algorithms**: Support for other encryption.
+- [ ] **Share Encoding via BIP-39**: Implement share encoding using BIP-39 mnemonic phrases for better usability.
+- [ ] **Crypto Wallet Integration**: Allow users to manage shares via crypto wallets for enhanced security.
+
 ## Development
 
 To install dependencies:

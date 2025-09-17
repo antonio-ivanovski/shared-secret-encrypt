@@ -8,7 +8,9 @@
   "scripts": {
     "dev": "bun --hot src/index.tsx",
     "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/index.tsx"
+    "build:pages": "bun build ./src/index.html --outdir=dist --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*' && echo 'App build completed for GitHub Pages'",
+    "start": "NODE_ENV=production bun src/index.tsx",
+    "preview": "cd dist && python3 -m http.server 3000"
   },
   "dependencies": {
     "react": "^19",

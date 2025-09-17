@@ -53,23 +53,11 @@ This application implements a **threshold cryptography** system that allows you 
 - A modern web browser with Web Crypto API support
 - [Bun](https://bun.sh) runtime (latest version recommended)
 
-### Quick Start
+### Demo
 
-Currently not deployed, to run locally follow these steps:
+You can try out the application on the hosted demo site https://antonio-ivanovski.github.io/shared-secret-encrypt/
 
-```bash
-# Clone the repository
-git clone https://github.com/antonio-ivanovski/shared-secret-encrypt.git
-cd shared-secret-encrypt
-
-# Install dependencies
-bun install
-
-# Start development server
-bun dev
-```
-
-The application will be available at `http://localhost:3000` (or the port shown in your terminal).
+Otherwise, you can jump to [Development](#development) section to run locally.
 
 ## Implementation Details
 

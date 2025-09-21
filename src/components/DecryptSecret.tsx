@@ -93,96 +93,133 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 		URL.revokeObjectURL(url);
 	};
 
+	const handleReset = () => {
+		setDecryptOutput("");
+		setIsDecrypted(false);
+		setSelectedFileName("");
+		setSelectedShares(new Array(sharesThreshold).fill(""));
+		if (decryptInputRef.current) {
+			decryptInputRef.current.value = "";
+		}
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
+
 	return (
 		<div className="operation-panel">
 			<h2>Decrypt a Secret</h2>
-			<div className="shares-section">
-				<h3>Enter Shares:</h3>
-				{selectedShares.map((share, index) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: OK for controlled inputs
-					<div key={index} className="share-item">
-						<label htmlFor={`decrypt-share-${index}`}>
-							{`Share #${index + 1}:`}
-						</label>
-						<textarea
-							id={`decrypt-share-${index}`}
-							className="share-input"
-							value={share}
-							onChange={(e) => handleShareChange(index, e.target.value)}
-							placeholder="Paste share here..."
-						/>
-					</div>
-				))}
-			</div>
-
-			<div className="input-mode-toggle">
-				<button
-					type="button"
-					className={`toggle-button ${inputMode === "text" ? "active" : ""}`}
-					onClick={() => setInputMode("text")}
-				>
-					Text Input
-				</button>
-				<button
-					type="button"
-					className={`toggle-button ${inputMode === "file" ? "active" : ""}`}
-					onClick={() => setInputMode("file")}
-				>
-					File Upload
-				</button>
-			</div>
-
-			{inputMode === "file" && (
-				<div className="file-input-section">
-					<input
-						ref={fileInputRef}
-						type="file"
-						accept=".txt.encrypted"
-						onChange={handleFileSelect}
-						className="file-input"
-						id="decrypt-file-input"
-					/>
-					<label htmlFor="decrypt-file-input" className="file-input-label">
-						Choose .txt.encrypted file to decrypt
-					</label>
-					<span className="file-size-note">Max file size: 10MB</span>
-					{selectedFileName && (
-						<span className="selected-file-name">✓ Selected: {selectedFileName}</span>
-					)}
-				</div>
-			)}
-
-			{inputMode === "text" && (
-				<textarea
-					ref={decryptInputRef}
-					placeholder="Insert the encrypted secret to decrypt"
-					className="secret-input"
-				/>
-			)}
-			<button type="button" className="action-button" onClick={handleDecrypt}>
-				DECRYPT
-			</button>
 			
-			{isDecrypted ? (
-				<div className="decrypt-success">
-					<div className="success-message">
-						✓ Secret successfully decrypted!
+			{!decryptOutput && (
+				<>
+					<div className="shares-section">
+						<h3>Enter Shares:</h3>
+						{selectedShares.map((share, index) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: OK for controlled inputs
+							<div key={index} className="share-item">
+								<label htmlFor={`decrypt-share-${index}`}>
+									{`Share #${index + 1}:`}
+								</label>
+								<textarea
+									id={`decrypt-share-${index}`}
+									className="share-input"
+									value={share}
+									onChange={(e) => handleShareChange(index, e.target.value)}
+									placeholder="Paste share here..."
+								/>
+							</div>
+						))}
 					</div>
-					<button 
-						type="button" 
-						className="download-button" 
-						onClick={handleDownloadDecrypted}
-					>
-						Download Decrypted File
+
+					<div className="input-mode-toggle">
+						<button
+							type="button"
+							className={`toggle-button ${inputMode === "text" ? "active" : ""}`}
+							onClick={() => setInputMode("text")}
+						>
+							Text Input
+						</button>
+						<button
+							type="button"
+							className={`toggle-button ${inputMode === "file" ? "active" : ""}`}
+							onClick={() => setInputMode("file")}
+						>
+							File Upload
+						</button>
+					</div>
+
+					{inputMode === "file" && (
+						<div className="file-input-section">
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept=".txt.encrypted"
+								onChange={handleFileSelect}
+								className="file-input"
+								id="decrypt-file-input"
+							/>
+							<label htmlFor="decrypt-file-input" className="file-input-label">
+								Choose .txt.encrypted file to decrypt
+							</label>
+							<span className="file-size-note">Max file size: 10MB</span>
+							{selectedFileName && (
+								<span className="selected-file-name">✓ Selected: {selectedFileName}</span>
+							)}
+						</div>
+					)}
+
+					{inputMode === "text" && (
+						<textarea
+							ref={decryptInputRef}
+							placeholder="Insert the encrypted secret to decrypt"
+							className="secret-input"
+						/>
+					)}
+					<button type="button" className="action-button" onClick={handleDecrypt}>
+						DECRYPT
 					</button>
-				</div>
-			) : decryptOutput && (
-				<textarea
-					readOnly
-					placeholder="Error messages will appear here"
-					className="encrypted-output error-output"
-					value={decryptOutput}
-				/>
+				</>
+			)}
+
+			{decryptOutput && (
+				<>
+					<div className="stage-header">
+						<button 
+							type="button" 
+							className="back-button" 
+							onClick={handleReset}
+						>
+							← Back to Input
+						</button>
+						<div className="stage-info">
+							{inputMode === "file" && selectedFileName && (
+								<span className="source-info">Decrypted: {selectedFileName}</span>
+							)}
+						</div>
+					</div>
+
+					{isDecrypted ? (
+						<div className="decrypt-success">
+							<div className="success-message">
+								✓ Secret successfully decrypted!
+							</div>
+							<button 
+								type="button" 
+								className="download-button" 
+								onClick={handleDownloadDecrypted}
+							>
+								Download Decrypted File
+							</button>
+						</div>
+					) : decryptOutput && (
+						<textarea
+							readOnly
+							placeholder="Error messages will appear here"
+							className="encrypted-output error-output"
+							value={decryptOutput}
+						/>
+					)}
+				</>
 			)}
 		</div>
 	);

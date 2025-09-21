@@ -16,8 +16,7 @@
     "bs58": "^6.0.0",
     "react": "^19",
     "react-dom": "^19",
-    "shamir-secret-sharing": "^0.0.4",
-    "wouter": "^3.7.1"
+    "shamir-secret-sharing": "^0.0.4"
   },
   "devDependencies": {
     "@types/react": "^19",

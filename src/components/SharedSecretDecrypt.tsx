@@ -1,21 +1,21 @@
-import { useState, useEffect, useMemo } from "react";
-import { decryptShareFromUrl, type ShareUrlData } from "../utils/urlSharing";
+import { useMemo, useState } from "react";
 import type { Result } from "../types/Results";
-import { navigate } from "wouter/use-browser-location";
-import { useSearchParams } from "wouter";
+import { decryptShareFromUrl, type ShareUrlData } from "../utils/urlSharing";
 
 export function SharedSecretDecrypt() {
 	const [password, setPassword] = useState<string>("");
 	const [decryptedShare, setDecryptedShare] = useState<Result<string>>();
 	const [showDecryptedShare, setShowDecryptedShare] = useState<boolean>(false);
-	const [searchParams] = useSearchParams();
-
-	const navigateToMain = () => navigate("/", { replace: true });
+	const navigateToMain = () => {
+		window.history.replaceState({}, "", window.location.pathname);
+		window.location.reload();
+	};
 
 	const shareUrlData: Result<ShareUrlData> = useMemo(() => {
-		const encryptedShare = searchParams.get("s");
-		const iv = searchParams.get("iv");
-		const salt = searchParams.get("salt");
+		const urlParams = new URLSearchParams(window.location.search);
+		const encryptedShare = urlParams.get("s");
+		const iv = urlParams.get("iv");
+		const salt = urlParams.get("salt");
 
 		if (encryptedShare && iv && salt) {
 			return {
@@ -31,7 +31,7 @@ export function SharedSecretDecrypt() {
 			success: false,
 			error: new Error("Missing required URL parameters"),
 		};
-	}, [searchParams]);
+	}, []);
 
 	const handleDecrypt = async () => {
 		if (!password.trim()) {
@@ -128,25 +128,34 @@ export function SharedSecretDecrypt() {
 							<div className="instructions-section">
 								<h3>🔐 What is this share?</h3>
 								<p>
-									You've successfully decrypted one piece of a secret that was split using Shamir's Secret Sharing scheme. 
-									This share alone cannot reveal the original secret - it's designed to be secure even if intercepted.
+									You've successfully decrypted one piece of a secret that was
+									split using Shamir's Secret Sharing scheme. This share alone
+									cannot reveal the original secret - it's designed to be secure
+									even if intercepted.
 								</p>
-								
+
 								<h3>💾 Next Steps:</h3>
 								<div className="instruction-steps">
 									<div className="step">
-										<strong>1. Save Securely:</strong> Copy and store this share in a secure location (password manager, encrypted file, etc.)
+										<strong>1. Save Securely:</strong> Copy and store this share
+										in a secure location (password manager, encrypted file,
+										etc.)
 									</div>
 									<div className="step">
-										<strong>2. Coordinate with Others:</strong> The original secret was split into multiple shares. You'll need to gather the required number of shares from other participants.
+										<strong>2. Coordinate with Others:</strong> The original
+										secret was split into multiple shares. You'll need to gather
+										the required number of shares from other participants.
 									</div>
 									<div className="step">
-										<strong>3. Reconstruct the Secret:</strong> When ready, use the "Decrypt Secret" feature in the main application to combine all shares and reveal the original secret.
+										<strong>3. Reconstruct the Secret:</strong> When ready, use
+										the "Decrypt Secret" feature in the main application to
+										combine all shares and reveal the original secret.
 									</div>
 								</div>
-								
+
 								<div className="security-note">
-									<strong>🛡️ Security Reminder:</strong> Keep this share private and secure. Never share it through unsecured channels.
+									<strong>🛡️ Security Reminder:</strong> Keep this share private
+									and secure. Never share it through unsecured channels.
 								</div>
 							</div>
 						</div>

@@ -126,16 +126,28 @@ export function SharedSecretDecrypt() {
 							</div>
 
 							<div className="instructions-section">
-								<h3>Next Steps:</h3>
+								<h3>🔐 What is this share?</h3>
 								<p>
-									This is one share of a key used to encrypt a secret of the
-									original creator.
+									You've successfully decrypted one piece of a secret that was split using Shamir's Secret Sharing scheme. 
+									This share alone cannot reveal the original secret - it's designed to be secure even if intercepted.
 								</p>
-								<p>
-									Save the decrypted share securely for your safekeeping. When
-									the time comes, you will need it along with other shares to
-									reconstruct the original secret
-								</p>
+								
+								<h3>💾 Next Steps:</h3>
+								<div className="instruction-steps">
+									<div className="step">
+										<strong>1. Save Securely:</strong> Copy and store this share in a secure location (password manager, encrypted file, etc.)
+									</div>
+									<div className="step">
+										<strong>2. Coordinate with Others:</strong> The original secret was split into multiple shares. You'll need to gather the required number of shares from other participants.
+									</div>
+									<div className="step">
+										<strong>3. Reconstruct the Secret:</strong> When ready, use the "Decrypt Secret" feature in the main application to combine all shares and reveal the original secret.
+									</div>
+								</div>
+								
+								<div className="security-note">
+									<strong>🛡️ Security Reminder:</strong> Keep this share private and secure. Never share it through unsecured channels.
+								</div>
 							</div>
 						</div>
 					) : (

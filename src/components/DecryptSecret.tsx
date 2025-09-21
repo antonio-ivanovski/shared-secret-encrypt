@@ -201,9 +201,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 
 					{decryptResult.success ? (
 						<div className="decrypt-success">
-							<div className="success-message">
-								✓ Secret successfully decrypted!
-							</div>
+							<DecryptInstructionsSuccess sharesThreshold={sharesThreshold} />
 							<div className="action-buttons">
 								<button
 									type="button"
@@ -243,6 +241,41 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 					)}
 				</>
 			)}
+		</div>
+	);
+}
+
+function DecryptInstructionsSuccess({ sharesThreshold }: { sharesThreshold: number }) {
+	return (
+		<div className="instructions-section">
+			<h3>🎉 Secret Successfully Reconstructed!</h3>
+			<p>
+				You've successfully combined {sharesThreshold} shares to reconstruct the
+				original secret. The decryption process has verified the authenticity
+				and integrity of your secret.
+			</p>
+
+			<h3>💾 Next Steps:</h3>
+			<div className="instruction-steps">
+				<div className="step">
+					<strong>1. Secure Handling:</strong> Your secret is now visible.
+					Handle it securely and delete it from this interface when done.
+				</div>
+				<div className="step">
+					<strong>2. Download (Optional):</strong> Use the download button to
+					save the secret to a secure location on your device.
+				</div>
+				<div className="step">
+					<strong>3. Clean Up:</strong> Clear browser data and refresh the page
+					when finished to remove traces.
+				</div>
+			</div>
+
+			<div className="security-note">
+				<strong>🛡️ Security Reminder:</strong> This secret was protected by
+				threshold cryptography. Now that it's reconstructed, protect it with
+				appropriate security measures.
+			</div>
 		</div>
 	);
 }

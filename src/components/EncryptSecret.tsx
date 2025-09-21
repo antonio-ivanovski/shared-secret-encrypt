@@ -177,6 +177,11 @@ export function EncryptSecret({
 
 					{encryptResult.success ? (
 						<>
+							<EncryptInstructionsSuccess
+								sharesCount={sharesCount}
+								sharesThreshold={sharesThreshold}
+							/>
+							<h3>Encrypted Secret:</h3>
 							<textarea
 								readOnly
 								placeholder="The encrypted secret will appear here"
@@ -195,19 +200,17 @@ export function EncryptSecret({
 
 							<div className="shares-section">
 								<h3>Shares:</h3>
-								{Array.from({ length: sharesCount }, (_, index) => 
-									(
-										<ShareDisplay
-											// biome-ignore lint/suspicious/noArrayIndexKey: no other way
-											key={`share-${index}`}
-											shareIndex={index}
-											shareValue={encryptResult.data.shares[index]}
-											onCopyShare={(share) => {
-												navigator.clipboard.writeText(share);
-											}}
-										/>
-									)
-								)}
+								{Array.from({ length: sharesCount }, (_, index) => (
+									<ShareDisplay
+										// biome-ignore lint/suspicious/noArrayIndexKey: no other way
+										key={`share-${index}`}
+										shareIndex={index}
+										shareValue={encryptResult.data.shares[index]}
+										onCopyShare={(share) => {
+											navigator.clipboard.writeText(share);
+										}}
+									/>
+								))}
 							</div>
 						</>
 					) : (
@@ -222,6 +225,47 @@ export function EncryptSecret({
 					)}
 				</>
 			)}
+		</div>
+	);
+}
+
+function EncryptInstructionsSuccess({
+	sharesCount,
+	sharesThreshold,
+}: {
+	sharesCount: number;
+	sharesThreshold: number;
+}) {
+	return (
+		<div className="instructions-section">
+			<h3>🔐 Your Secret Has Been Encrypted!</h3>
+			<p>
+				Your secret has been encrypted and split into {sharesCount} shares using
+				Shamir's Secret Sharing. Any {sharesThreshold} of these shares can
+				reconstruct the original secret.
+			</p>
+
+			<h3>📤 Distribution Strategy:</h3>
+			<div className="instruction-steps">
+				<div className="step">
+					<strong>1. Distribute Shares:</strong> Give each share to a different
+					trusted person or store in separate secure locations.
+				</div>
+				<div className="step">
+					<strong>2. Share URLs (Optional):</strong> Use the share URLs to send
+					password-protected shares via different communication channels.
+				</div>
+				<div className="step">
+					<strong>3. Save Encrypted Data:</strong> Store the encrypted data
+					safely - it's useless without the shares.
+				</div>
+			</div>
+
+			<div className="security-note">
+				<strong>🛡️ Security Best Practices:</strong> Never store all shares in
+				the same location. The threshold of {sharesThreshold} shares is required
+				to decrypt, so distribute them wisely.
+			</div>
 		</div>
 	);
 }

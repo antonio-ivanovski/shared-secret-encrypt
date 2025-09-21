@@ -1,5 +1,5 @@
-import { EncryptSecret, DecryptSecret, Tabs } from "./components";
 import { useState } from "react";
+import { DecryptSecret, EncryptSecret, Tabs } from "./components";
 
 import logo from "./logo.svg";
 
@@ -9,7 +9,6 @@ const tabs = [
 ];
 
 export function CryptoFlow() {
-	const [sharesThreshold] = useState<number>(2);
 	const [activeTab, setActiveTab] = useState<string>("encrypt");
 
 	return (

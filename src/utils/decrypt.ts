@@ -4,7 +4,6 @@ import type { Result } from "../types/Results";
 export interface DoDecryptParams {
 	encryptedData: string;
 	shares: string[];
-	sharesThreshold: number;
 }
 
 /**
@@ -16,12 +15,9 @@ export async function doDecrypt(
 	params: DoDecryptParams,
 ): Promise<Result<string>> {
 	try {
-		const { encryptedData, shares, sharesThreshold } = params;
+		const { encryptedData, shares } = params;
 
 		const validShares = shares.filter((share) => share.trim() !== "");
-		if (validShares.length < sharesThreshold) {
-			throw new Error(`Need at least ${sharesThreshold} shares to decrypt`);
-		}
 
 		const { combine: shamirCombine } = await import("shamir-secret-sharing");
 		const keyBytes = await shamirCombine(validShares.map(bs58.decode));

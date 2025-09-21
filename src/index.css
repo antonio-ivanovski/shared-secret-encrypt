@@ -81,6 +81,36 @@ code {
 }
 
 /* ==========================================
+   APP HEADER & LOGO
+   ========================================== */
+
+.app-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-logo {
+  height: 60px;
+  width: auto;
+  max-width: 300px;
+  filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.app-logo:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+}
+
+/* ==========================================
    INTRO SECTION
    ========================================== */
 
@@ -405,6 +435,74 @@ code {
 .share-input::placeholder {
   color: rgba(251, 240, 223, 0.4);
   font-style: italic;
+}
+
+/* Share Management Controls */
+.shares-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.shares-info {
+  color: rgba(251, 240, 223, 0.7);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.share-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.remove-share-button {
+  min-width: 32px;
+  height: 32px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 50%;
+  color: #ef4444;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-share-button:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: scale(1.1);
+}
+
+.add-share-button {
+  padding: 0.75rem 1.5rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  color: #22c55e;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+.add-share-button:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+  transform: translateY(-1px);
+}
+
+.add-share-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .copy-button {

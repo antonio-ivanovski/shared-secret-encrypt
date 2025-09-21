@@ -3,15 +3,9 @@ import { doEncrypt, type EncryptResult } from "../utils/encrypt";
 import type { Result } from "../types/Results";
 import { ShareDisplay } from "./ShareDisplay";
 
-interface EncryptSecretProps {
-	sharesCount: number;
-	sharesThreshold: number;
-}
-
-export function EncryptSecret({
-	sharesCount,
-	sharesThreshold,
-}: EncryptSecretProps) {
+export function EncryptSecret() {
+	const [sharesCount, setSharesCount] = useState<number>(3);
+	const [sharesThreshold, setSharesThreshold] = useState<number>(2);
 	const encryptInputRef = useRef<HTMLTextAreaElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [encryptResult, setEncryptResult] =
@@ -101,6 +95,33 @@ export function EncryptSecret({
 	return (
 		<div className="operation-panel">
 			<h2>Encrypt a Secret</h2>
+
+			<div className="shares-config">
+				<label>
+					Shares Count:
+					<input
+						type="number"
+						value={sharesCount}
+						onChange={(e) =>
+							setSharesCount(Math.max(2, Math.min(10, Number(e.target.value))))
+						}
+						min={2}
+						max={10}
+					/>
+				</label>
+				<label>
+					Shares Threshold:
+					<input
+						type="number"
+						value={sharesThreshold}
+						onChange={(e) =>
+							setSharesThreshold(Math.max(2, Math.min(sharesCount, Number(e.target.value))))
+						}
+						min={2}
+						max={sharesCount}
+					/>
+				</label>
+			</div>
 
 			{!encryptResult && (
 				<>

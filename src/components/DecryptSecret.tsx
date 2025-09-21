@@ -2,19 +2,13 @@ import { useRef, useState } from "react";
 import { doDecrypt } from "../utils/decrypt";
 import type { Result } from "../types/Results";
 
-interface DecryptSecretProps {
-	sharesThreshold: number;
-}
-
-export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
+export function DecryptSecret() {
 	const decryptInputRef = useRef<HTMLTextAreaElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [decryptResult, setDecryptResult] = useState<Result<string> | null>(
 		null,
 	);
-	const [shares, setShares] = useState<string[]>(
-		new Array(sharesThreshold).fill(""),
-	);
+	const [shares, setShares] = useState<string[]>(["", ""]);
 	const [inputMode, setInputMode] = useState<"text" | "file">("text");
 	const [selectedFileName, setSelectedFileName] = useState<string>("");
 	const [showContent, setShowContent] = useState<boolean>(false);
@@ -23,6 +17,17 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 		const newShares = [...shares];
 		newShares[index] = value;
 		setShares(newShares);
+	};
+
+	const addShareInput = () => {
+		setShares([...shares, ""]);
+	};
+
+	const removeShareInput = (index: number) => {
+		if (shares.length > 2) {
+			const newShares = shares.filter((_, i) => i !== index);
+			setShares(newShares);
+		}
 	};
 
 	const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,8 +70,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 		}
 		const result = await doDecrypt({
 			encryptedData,
-			shares: shares,
-			sharesThreshold,
+			shares,
 		});
 		setDecryptResult(result);
 	};
@@ -94,7 +98,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 		setDecryptResult(null);
 		setShowContent(false);
 		setSelectedFileName("");
-		setShares(new Array(sharesThreshold).fill(""));
+		setShares((shares) => shares.fill(""));
 		if (decryptInputRef.current) {
 			decryptInputRef.current.value = "";
 		}
@@ -110,22 +114,43 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 			{!decryptResult && (
 				<>
 					<div className="shares-section">
-						<h3>Enter Shares:</h3>
+						<div className="shares-header">
+							<h3>Enter Shares:</h3>
+						</div>
 						{shares.map((share, index) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: OK for controlled inputs
 							<div key={index} className="share-item">
 								<label htmlFor={`decrypt-share-${index}`}>
 									{`Share #${index + 1}:`}
 								</label>
-								<input
-									id={`decrypt-share-${index}`}
-									className="share-input"
-									value={share}
-									onChange={(e) => handleShareChange(index, e.target.value)}
-									placeholder="Paste share here..."
-								/>
+								<div className="share-input-group">
+									<input
+										id={`decrypt-share-${index}`}
+										className="share-input"
+										value={share}
+										onChange={(e) => handleShareChange(index, e.target.value)}
+										placeholder="Paste share here..."
+									/>
+									{shares.length > 2 && (
+										<button
+											type="button"
+											className="remove-share-button"
+											onClick={() => removeShareInput(index)}
+											title="Remove this share"
+										>
+											×
+										</button>
+									)}
+								</div>
 							</div>
 						))}
+						<button
+							type="button"
+							className="add-share-button"
+							onClick={addShareInput}
+						>
+							{`+ Add Share #${shares.length + 1}`}
+						</button>
 					</div>
 
 					<div className="input-mode-toggle">
@@ -201,7 +226,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 
 					{decryptResult.success ? (
 						<div className="decrypt-success">
-							<DecryptInstructionsSuccess sharesThreshold={sharesThreshold} />
+							<DecryptInstructionsSuccess sharesThreshold={shares.length} />
 							<div className="action-buttons">
 								<button
 									type="button"
@@ -245,7 +270,11 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	);
 }
 
-function DecryptInstructionsSuccess({ sharesThreshold }: { sharesThreshold: number }) {
+function DecryptInstructionsSuccess({
+	sharesThreshold,
+}: {
+	sharesThreshold: number;
+}) {
 	return (
 		<div className="instructions-section">
 			<h3>🎉 Secret Successfully Reconstructed!</h3>

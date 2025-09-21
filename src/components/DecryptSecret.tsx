@@ -15,6 +15,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	const [inputMode, setInputMode] = useState<"text" | "file">("text");
 	const [selectedFileName, setSelectedFileName] = useState<string>("");
 	const [isDecrypted, setIsDecrypted] = useState<boolean>(false);
+	const [showContent, setShowContent] = useState<boolean>(false);
 
 	const handleShareChange = (index: number, value: string) => {
 		const newShares = [...selectedShares];
@@ -96,6 +97,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	const handleReset = () => {
 		setDecryptOutput("");
 		setIsDecrypted(false);
+		setShowContent(false);
 		setSelectedFileName("");
 		setSelectedShares(new Array(sharesThreshold).fill(""));
 		if (decryptInputRef.current) {
@@ -203,13 +205,32 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 							<div className="success-message">
 								✓ Secret successfully decrypted!
 							</div>
-							<button 
-								type="button" 
-								className="download-button" 
-								onClick={handleDownloadDecrypted}
-							>
-								Download Decrypted File
-							</button>
+							<div className="action-buttons">
+								<button 
+									type="button" 
+									className="view-button" 
+									onClick={() => setShowContent(!showContent)}
+								>
+									{showContent ? "Hide Content" : "View Content"}
+								</button>
+								<button 
+									type="button" 
+									className="download-button" 
+									onClick={handleDownloadDecrypted}
+								>
+									Download File
+								</button>
+							</div>
+							{showContent && (
+								<div className="decrypted-content">
+									<textarea
+										readOnly
+										value={decryptOutput}
+										className="content-display"
+										rows={10}
+									/>
+								</div>
+							)}
 						</div>
 					) : decryptOutput && (
 						<textarea

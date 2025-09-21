@@ -1,4 +1,3 @@
-import { combine } from "shamir-secret-sharing";
 import bs58 from "bs58";
 import type { Result } from "../types/Results";
 
@@ -24,7 +23,8 @@ export async function doDecrypt(
 			throw new Error(`Need at least ${sharesThreshold} shares to decrypt`);
 		}
 
-		const keyBytes = await combine(validShares.map(bs58.decode));
+		const { combine: shamirCombine } = await import("shamir-secret-sharing");
+		const keyBytes = await shamirCombine(validShares.map(bs58.decode));
 		const key = await crypto.subtle.importKey(
 			"raw",
 			new Uint8Array(keyBytes),

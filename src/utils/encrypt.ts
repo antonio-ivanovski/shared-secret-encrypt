@@ -1,4 +1,3 @@
-import { split } from "shamir-secret-sharing";
 import bs58 from "bs58";
 import type { Result } from "../types/Results";
 
@@ -48,7 +47,8 @@ export async function doEncrypt(
 		const encryptedData = bs58.encode(encryptedBytes);
 
 		const rawKey = new Uint8Array(await crypto.subtle.exportKey("raw", key));
-		const shares = await split(rawKey, sharesCount, sharesThreshold).then(
+		const { split: shamirSplit } = await import("shamir-secret-sharing");
+		const shares = await shamirSplit(rawKey, sharesCount, sharesThreshold).then(
 			(shares) => shares.map(bs58.encode),
 		);
 

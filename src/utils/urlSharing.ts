@@ -55,7 +55,7 @@ async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promis
  */
 export async function createShareUrl(params: CreateShareUrlParams): Promise<Result<string>> {
 	try {
-		const { share, password, baseUrl = window.location.origin } = params;
+	const { share, password, baseUrl = window.location.origin } = params;
 		
 		// Generate random salt and IV
 		const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -77,7 +77,8 @@ export async function createShareUrl(params: CreateShareUrlParams): Promise<Resu
 		const ivString = bs58.encode(iv);
 		const saltString = bs58.encode(salt);
 		
-		const shareUrl = `${baseUrl}/share?s=${encryptedShare}&iv=${ivString}&salt=${saltString}`;
+	// Use hash-based routing for GitHub Pages compatibility
+	const shareUrl = `${baseUrl}/#/share?s=${encryptedShare}&iv=${ivString}&salt=${saltString}`;
 		
 		return {
 			success: true,

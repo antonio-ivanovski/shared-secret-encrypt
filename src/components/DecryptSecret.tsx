@@ -117,7 +117,7 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 								<label htmlFor={`decrypt-share-${index}`}>
 									{`Share #${index + 1}:`}
 								</label>
-								<textarea
+								<input
 									id={`decrypt-share-${index}`}
 									className="share-input"
 									value={share}

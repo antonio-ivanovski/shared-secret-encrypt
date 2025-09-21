@@ -13,10 +13,11 @@
     "preview": "cd dist && python3 -m http.server 3000"
   },
   "dependencies": {
+    "bs58": "^6.0.0",
     "react": "^19",
     "react-dom": "^19",
     "shamir-secret-sharing": "^0.0.4",
-    "bs58": "^6.0.0"
+    "wouter": "^3.7.1"
   },
   "devDependencies": {
     "@types/react": "^19",

@@ -72,12 +72,12 @@ export async function createShareUrl(params: CreateShareUrlParams): Promise<Resu
 			shareBuffer
 		);
 		
-		// Create URL with multiple fragments (more practical than JSON)
+		// Create URL with query parameters
 		const encryptedShare = bs58.encode(new Uint8Array(encryptedBuffer));
 		const ivString = bs58.encode(iv);
 		const saltString = bs58.encode(salt);
 		
-		const shareUrl = `${baseUrl}/#s=${encryptedShare}&iv=${ivString}&salt=${saltString}`;
+		const shareUrl = `${baseUrl}/share?s=${encryptedShare}&iv=${ivString}&salt=${saltString}`;
 		
 		return {
 			success: true,
@@ -124,60 +124,5 @@ export async function decryptShareFromUrl(params: DecryptShareUrlParams): Promis
 			success: false,
 			error: error instanceof Error ? error : new Error("Invalid password or corrupted share data")
 		};
-	}
-}
-
-/**
- * Extracts share data from the current URL
- */
-export function extractShareFromCurrentUrl(): ShareUrlData | null {
-	try {
-		const hash = window.location.hash;
-		if (!hash.startsWith("#")) {
-			return null;
-		}
-		
-		// Handle new format: #s=<share>&iv=<iv>&salt=<salt>
-		const hashParams = new URLSearchParams(hash.substring(1));
-		const encryptedShare = hashParams.get('s');
-		const iv = hashParams.get('iv');
-		const salt = hashParams.get('salt');
-		
-		if (encryptedShare && iv && salt) {
-			return {
-				encryptedShare,
-				iv,
-				salt
-			};
-		}
-		
-		// Fallback: Handle legacy format #share=<base64-json>
-		if (hash.startsWith("#share=")) {
-			const encodedData = hash.substring(7); // Remove "#share="
-			const decodedData = atob(encodedData);
-			const shareData = JSON.parse(decodedData) as ShareUrlData;
-			
-			// Validate that all required fields exist
-			if (!shareData.encryptedShare || !shareData.iv || !shareData.salt) {
-				return null;
-			}
-			
-			return shareData;
-		}
-		
-		return null;
-	} catch (error) {
-		console.warn("Failed to extract share from URL:", error);
-		return null;
-	}
-}
-
-/**
- * Clears the share data from the current URL
- */
-export function clearShareFromUrl(): void {
-	const hash = window.location.hash;
-	if (hash.startsWith("#share=") || hash.includes("s=") || hash.includes("iv=") || hash.includes("salt=")) {
-		window.history.replaceState(null, "", window.location.pathname + window.location.search);
 	}
 }

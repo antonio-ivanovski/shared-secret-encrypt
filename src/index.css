@@ -1060,3 +1060,145 @@ code {
   font-size: 0.85rem;
   font-style: italic;
 }
+
+/* ==========================================
+   SHARED SECRET DECRYPT
+   ========================================== */
+
+.shared-secret-decrypt {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.decrypt-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.decrypt-description {
+  color: rgba(251, 240, 223, 0.9);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.decrypt-description p {
+  margin: 0 0 0.75rem 0;
+}
+
+.shares-info {
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  margin: 0.75rem 0;
+}
+
+.shares-requirement {
+  margin: 0 !important;
+  color: #3b82f6;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.highlight {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.password-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.decrypt-result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.success-message {
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.decrypted-share-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.share-label {
+  color: #fbf0df;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.share-display-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.instructions-section {
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+}
+
+.instructions-section h3 {
+  margin: 0 0 0.75rem 0;
+  color: #3b82f6;
+  font-size: 1rem;
+}
+
+.instructions-section p {
+  margin: 0 0 0.5rem 0;
+  color: rgba(251, 240, 223, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.instructions-section p:last-child {
+  margin-bottom: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.secondary-button {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fbf0df;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.error-description {
+  color: rgba(251, 240, 223, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}

@@ -74,11 +74,12 @@ export function ShareDisplay({ shareIndex, shareValue, onCopyShare }: ShareDispl
 				</div>
 			</div>
 
-            <textarea
+            <input
                 id={`share-${shareIndex}`}
                 readOnly
                 className="share-input"
-                value={showRawShare ? shareValue : shareValue.replace(/./g, '•')}
+				type={showRawShare ? "text" : "password"}
+                value={shareValue}
                 placeholder={`Share #${shareIndex + 1} will appear here after encryption`}
             />
 

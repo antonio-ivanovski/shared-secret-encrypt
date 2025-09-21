@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { doEncrypt, type EncryptResult } from "../utils/encrypt";
 import type { Result } from "../types/Results";
+import { ShareDisplay } from "./ShareDisplay";
 
 interface EncryptSecretProps {
 	sharesCount: number;
@@ -194,31 +195,19 @@ export function EncryptSecret({
 
 							<div className="shares-section">
 								<h3>Shares:</h3>
-								{Array.from({ length: sharesCount }, (_, index) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: OK for static placeholder areas
-									<div key={index} className="share-item">
-										<textarea
-											style={{ flex: 1 }}
-											readOnly
-											className="share-input"
-											value={encryptResult.data.shares[index] || ""}
-											placeholder={`Share #${index + 1} will appear here after encryption`}
+								{Array.from({ length: sharesCount }, (_, index) => 
+									(
+										<ShareDisplay
+											// biome-ignore lint/suspicious/noArrayIndexKey: no other way
+											key={`share-${index}`}
+											shareIndex={index}
+											shareValue={encryptResult.data.shares[index]}
+											onCopyShare={(share) => {
+												navigator.clipboard.writeText(share);
+											}}
 										/>
-										{encryptResult.data.shares[index] && (
-											<button
-												type="button"
-												className="copy-button"
-												onClick={() => {
-													navigator.clipboard.writeText(
-														encryptResult.data.shares[index],
-													);
-												}}
-											>
-												{`COPY #${index + 1}`}
-											</button>
-										)}
-									</div>
-								))}
+									)
+								)}
 							</div>
 						</>
 					) : (

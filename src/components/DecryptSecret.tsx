@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { doDecrypt } from "../utils/decrypt";
+import type { Result } from "../types/Results";
 
 interface DecryptSecretProps {
 	sharesThreshold: number;
@@ -8,32 +9,33 @@ interface DecryptSecretProps {
 export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	const decryptInputRef = useRef<HTMLTextAreaElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [decryptOutput, setDecryptOutput] = useState<string>("");
-	const [selectedShares, setSelectedShares] = useState<string[]>(
-		new Array(sharesThreshold).fill("")
+	const [decryptResult, setDecryptResult] = useState<Result<string> | null>(
+		null,
+	);
+	const [shares, setShares] = useState<string[]>(
+		new Array(sharesThreshold).fill(""),
 	);
 	const [inputMode, setInputMode] = useState<"text" | "file">("text");
 	const [selectedFileName, setSelectedFileName] = useState<string>("");
-	const [isDecrypted, setIsDecrypted] = useState<boolean>(false);
 	const [showContent, setShowContent] = useState<boolean>(false);
 
 	const handleShareChange = (index: number, value: string) => {
-		const newShares = [...selectedShares];
+		const newShares = [...shares];
 		newShares[index] = value;
-		setSelectedShares(newShares);
+		setShares(newShares);
 	};
 
 	const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
-		
+
 		// Check file size (10MB limit)
 		const maxSize = 10 * 1024 * 1024; // 10MB in bytes
 		if (file.size > maxSize) {
 			alert("File size must be less than 10MB. Please select a smaller file.");
 			return;
 		}
-		
+
 		if (file.name.endsWith(".txt.encrypted") || file.type === "text/plain") {
 			setSelectedFileName(file.name);
 		} else {
@@ -42,52 +44,46 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	};
 
 	const handleDecrypt = async () => {
-		try {
-			let encryptedData = "";
-			if (inputMode === "file") {
-				const file = fileInputRef.current?.files?.[0];
-				if (!file) {
-					alert("Please select a file to decrypt");
-					return;
-				}
-				
-				// Read file content on-demand
-				const content = await file.text();
-				encryptedData = content;
-			} else {
-				encryptedData = decryptInputRef.current?.value || "";
-			}
-			
-			if (!encryptedData.trim()) {
-				alert("Please enter encrypted data or select a file to decrypt");
+		let encryptedData = "";
+		if (inputMode === "file") {
+			const file = fileInputRef.current?.files?.[0];
+			if (!file) {
+				alert("Please select a file to decrypt");
 				return;
 			}
-			const result = await doDecrypt({
-				encryptedData,
-				shares: selectedShares,
-				sharesThreshold,
-			});
-			setDecryptOutput(result);
-			setIsDecrypted(!result.includes("Error"));
-		} catch (error) {
-			setDecryptOutput(String(error));
-			setIsDecrypted(false);
+
+			// Read file content on-demand
+			const content = await file.text();
+			encryptedData = content;
+		} else {
+			encryptedData = decryptInputRef.current?.value || "";
 		}
+
+		if (!encryptedData.trim()) {
+			alert("Please enter encrypted data or select a file to decrypt");
+			return;
+		}
+		const result = await doDecrypt({
+			encryptedData,
+			shares: shares,
+			sharesThreshold,
+		});
+		setDecryptResult(result);
 	};
 
 	const handleDownloadDecrypted = () => {
-		if (!decryptOutput) {
+		if (!decryptResult?.success) {
 			alert("Nothing to download. Please decrypt a secret first.");
 			return;
 		}
-		
-		const blob = new Blob([decryptOutput], { type: "text/plain" });
+
+		const blob = new Blob([decryptResult.data], { type: "text/plain" });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = selectedFileName ? 
-			selectedFileName.replace(/\.txt\.encrypted$/, ".txt") : 
-			"decrypted-secret.txt";
+		a.download = selectedFileName
+			? selectedFileName.replace(/\.txt\.encrypted$/, ".txt")
+			: "decrypted-secret.txt";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -95,11 +91,10 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	};
 
 	const handleReset = () => {
-		setDecryptOutput("");
-		setIsDecrypted(false);
+		setDecryptResult(null);
 		setShowContent(false);
 		setSelectedFileName("");
-		setSelectedShares(new Array(sharesThreshold).fill(""));
+		setShares(new Array(sharesThreshold).fill(""));
 		if (decryptInputRef.current) {
 			decryptInputRef.current.value = "";
 		}
@@ -111,12 +106,12 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 	return (
 		<div className="operation-panel">
 			<h2>Decrypt a Secret</h2>
-			
-			{!decryptOutput && (
+
+			{!decryptResult && (
 				<>
 					<div className="shares-section">
 						<h3>Enter Shares:</h3>
-						{selectedShares.map((share, index) => (
+						{shares.map((share, index) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: OK for controlled inputs
 							<div key={index} className="share-item">
 								<label htmlFor={`decrypt-share-${index}`}>
@@ -165,7 +160,9 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 							</label>
 							<span className="file-size-note">Max file size: 10MB</span>
 							{selectedFileName && (
-								<span className="selected-file-name">✓ Selected: {selectedFileName}</span>
+								<span className="selected-file-name">
+									✓ Selected: {selectedFileName}
+								</span>
 							)}
 						</div>
 					)}
@@ -177,45 +174,47 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 							className="secret-input"
 						/>
 					)}
-					<button type="button" className="action-button" onClick={handleDecrypt}>
+					<button
+						type="button"
+						className="action-button"
+						onClick={handleDecrypt}
+					>
 						DECRYPT
 					</button>
 				</>
 			)}
 
-			{decryptOutput && (
+			{decryptResult && (
 				<>
 					<div className="stage-header">
-						<button 
-							type="button" 
-							className="back-button" 
-							onClick={handleReset}
-						>
+						<button type="button" className="back-button" onClick={handleReset}>
 							← Back to Input
 						</button>
 						<div className="stage-info">
 							{inputMode === "file" && selectedFileName && (
-								<span className="source-info">Decrypted: {selectedFileName}</span>
+								<span className="source-info">
+									Decrypted: {selectedFileName}
+								</span>
 							)}
 						</div>
 					</div>
 
-					{isDecrypted ? (
+					{decryptResult.success ? (
 						<div className="decrypt-success">
 							<div className="success-message">
 								✓ Secret successfully decrypted!
 							</div>
 							<div className="action-buttons">
-								<button 
-									type="button" 
-									className="view-button" 
+								<button
+									type="button"
+									className="view-button"
 									onClick={() => setShowContent(!showContent)}
 								>
 									{showContent ? "Hide Content" : "View Content"}
 								</button>
-								<button 
-									type="button" 
-									className="download-button" 
+								<button
+									type="button"
+									className="download-button"
 									onClick={handleDownloadDecrypted}
 								>
 									Download File
@@ -225,20 +224,22 @@ export function DecryptSecret({ sharesThreshold }: DecryptSecretProps) {
 								<div className="decrypted-content">
 									<textarea
 										readOnly
-										value={decryptOutput}
+										value={decryptResult.data}
 										className="content-display"
 										rows={10}
 									/>
 								</div>
 							)}
 						</div>
-					) : decryptOutput && (
-						<textarea
-							readOnly
-							placeholder="Error messages will appear here"
-							className="encrypted-output error-output"
-							value={decryptOutput}
-						/>
+					) : (
+						<div className="error-section">
+							<textarea
+								readOnly
+								placeholder="Error messages will appear here"
+								className="encrypted-output error-output"
+								value={decryptResult.error.message}
+							/>
+						</div>
 					)}
 				</>
 			)}

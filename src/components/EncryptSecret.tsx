@@ -1,32 +1,34 @@
 import { useRef, useState } from "react";
-import { doEncrypt } from "../utils/encrypt";
+import { doEncrypt, type EncryptResult } from "../utils/encrypt";
+import type { Result } from "../types/Results";
 
 interface EncryptSecretProps {
 	sharesCount: number;
 	sharesThreshold: number;
 }
 
-export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretProps) {
+export function EncryptSecret({
+	sharesCount,
+	sharesThreshold,
+}: EncryptSecretProps) {
 	const encryptInputRef = useRef<HTMLTextAreaElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [encryptResult, setEncryptResult] = useState<{
-		encryptedData: string;
-		shares: string[];
-	} | null>(null);
+	const [encryptResult, setEncryptResult] =
+		useState<Result<EncryptResult> | null>(null);
 	const [inputMode, setInputMode] = useState<"text" | "file">("text");
 	const [selectedFileName, setSelectedFileName] = useState<string>("");
 
 	const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
-		
+
 		// Check file size (10MB limit)
 		const maxSize = 10 * 1024 * 1024; // 10MB in bytes
 		if (file.size > maxSize) {
 			alert("File size must be less than 10MB. Please select a smaller file.");
 			return;
 		}
-		
+
 		if (file.type === "text/plain") {
 			setSelectedFileName(file.name);
 		} else {
@@ -35,57 +37,49 @@ export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretPro
 	};
 
 	const handleEncrypt = async () => {
-		try {
-			let secret = "";
-			if (inputMode === "file") {
-				const file = fileInputRef.current?.files?.[0];
-				if (!file) {
-					alert("Please select a file to encrypt");
-					return;
-				}
-				
-				// Read file content on-demand
-				const content = await file.text();
-				secret = content;
-			} else {
-				secret = encryptInputRef.current?.value || "";
-			}
-			
-			if (!secret.trim()) {
-				alert("Please enter a secret or select a file to encrypt");
+		let secret = "";
+		if (inputMode === "file") {
+			const file = fileInputRef.current?.files?.[0];
+			if (!file) {
+				alert("Please select a file to encrypt");
 				return;
 			}
-			const result = await doEncrypt({
-				secret,
-				sharesCount,
-				sharesThreshold,
-			});
-			
-			setEncryptResult({
-				encryptedData: result.encryptedData,
-				shares: result.shares
-			});
-		} catch (error) {
-			setEncryptResult({
-				encryptedData: String(error),
-				shares: []
-			});
+
+			// Read file content on-demand
+			const content = await file.text();
+			secret = content;
+		} else {
+			secret = encryptInputRef.current?.value || "";
 		}
+
+		if (!secret.trim()) {
+			alert("Please enter a secret or select a file to encrypt");
+			return;
+		}
+		const result = await doEncrypt({
+			secret,
+			sharesCount,
+			sharesThreshold,
+		});
+
+		setEncryptResult(result);
 	};
 
 	const handleDownloadEncrypted = () => {
-		if (!encryptResult?.encryptedData) {
+		if (!encryptResult?.success) {
 			alert("Nothing to download. Please encrypt a secret first.");
 			return;
 		}
-		
-		const blob = new Blob([encryptResult.encryptedData], { type: "text/plain" });
+
+		const blob = new Blob([encryptResult.data.encryptedData], {
+			type: "text/plain",
+		});
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = selectedFileName ? 
-			selectedFileName.replace(/\.txt$/, ".txt.encrypted") : 
-			"encrypted-secret.txt.encrypted";
+		a.download = selectedFileName
+			? selectedFileName.replace(/\.txt$/, ".txt.encrypted")
+			: "encrypted-secret.txt.encrypted";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -106,7 +100,7 @@ export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretPro
 	return (
 		<div className="operation-panel">
 			<h2>Encrypt a Secret</h2>
-			
+
 			{!encryptResult && (
 				<>
 					<div className="input-mode-toggle">
@@ -141,7 +135,9 @@ export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretPro
 							</label>
 							<span className="file-size-note">Max file size: 10MB</span>
 							{selectedFileName && (
-								<span className="selected-file-name">✓ Selected: {selectedFileName}</span>
+								<span className="selected-file-name">
+									✓ Selected: {selectedFileName}
+								</span>
 							)}
 						</div>
 					)}
@@ -153,7 +149,11 @@ export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretPro
 							className="secret-input"
 						/>
 					)}
-					<button type="button" className="action-button" onClick={handleEncrypt}>
+					<button
+						type="button"
+						className="action-button"
+						onClick={handleEncrypt}
+					>
 						ENCRYPT
 					</button>
 				</>
@@ -162,62 +162,75 @@ export function EncryptSecret({ sharesCount, sharesThreshold }: EncryptSecretPro
 			{encryptResult && (
 				<>
 					<div className="stage-header">
-						<button 
-							type="button" 
-							className="back-button" 
-							onClick={handleReset}
-						>
+						<button type="button" className="back-button" onClick={handleReset}>
 							← Back to Input
 						</button>
 						<div className="stage-info">
 							{inputMode === "file" && selectedFileName && (
-								<span className="source-info">Encrypted: {selectedFileName}</span>
+								<span className="source-info">
+									Encrypted: {selectedFileName}
+								</span>
 							)}
 						</div>
 					</div>
 
-					<textarea
-						readOnly
-						placeholder="The encrypted secret will appear here"
-						className="encrypted-output"
-						value={encryptResult.encryptedData}
-					/>
-					{encryptResult.encryptedData && (
-						<button 
-							type="button" 
-							className="download-button" 
-							onClick={handleDownloadEncrypted}
-						>
-							Download as .txt.encrypted
-						</button>
-					)}
+					{encryptResult.success ? (
+						<>
+							<textarea
+								readOnly
+								placeholder="The encrypted secret will appear here"
+								className="encrypted-output"
+								value={encryptResult.data.encryptedData}
+							/>
+							{encryptResult.data.encryptedData && (
+								<button
+									type="button"
+									className="download-button"
+									onClick={handleDownloadEncrypted}
+								>
+									Download as .txt.encrypted
+								</button>
+							)}
 
-					<div className="shares-section">
-						<h3>Shares:</h3>
-						{Array.from({ length: sharesCount }, (_, index) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: OK for static placeholder areas
-							<div key={index} className="share-item">
-								<textarea
-									style={{ flex: 1 }}
-									readOnly
-									className="share-input"
-									value={encryptResult.shares[index] || ""}
-									placeholder={`Share #${index + 1} will appear here after encryption`}
-								/>
-								{encryptResult.shares[index] && (
-									<button
-										type="button"
-										className="copy-button"
-										onClick={() => {
-											navigator.clipboard.writeText(encryptResult.shares[index]);
-										}}
-									>
-										{`COPY #${index + 1}`}
-									</button>
-								)}
+							<div className="shares-section">
+								<h3>Shares:</h3>
+								{Array.from({ length: sharesCount }, (_, index) => (
+									// biome-ignore lint/suspicious/noArrayIndexKey: OK for static placeholder areas
+									<div key={index} className="share-item">
+										<textarea
+											style={{ flex: 1 }}
+											readOnly
+											className="share-input"
+											value={encryptResult.data.shares[index] || ""}
+											placeholder={`Share #${index + 1} will appear here after encryption`}
+										/>
+										{encryptResult.data.shares[index] && (
+											<button
+												type="button"
+												className="copy-button"
+												onClick={() => {
+													navigator.clipboard.writeText(
+														encryptResult.data.shares[index],
+													);
+												}}
+											>
+												{`COPY #${index + 1}`}
+											</button>
+										)}
+									</div>
+								))}
 							</div>
-						))}
-					</div>
+						</>
+					) : (
+						<div className="error-section">
+							<textarea
+								readOnly
+								placeholder="Error messages will appear here"
+								className="encrypted-output error-output"
+								value={encryptResult.error.message}
+							/>
+						</div>
+					)}
 				</>
 			)}
 		</div>

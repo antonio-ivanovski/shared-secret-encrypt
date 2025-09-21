@@ -1,0 +1,43 @@
+import { combine } from "shamir-secret-sharing";
+import bs58 from "bs58";
+
+export interface DoDecryptParams {
+	encryptedData: string;
+	shares: string[];
+	sharesThreshold: number;
+}
+
+/**
+ * Decrypts an encrypted secret using Shamir's Secret Sharing shares
+ * @param params - Object containing encrypted data, shares, and threshold
+ * @returns Promise containing the decrypted secret
+ */
+export async function doDecrypt(params: DoDecryptParams): Promise<string> {
+	const { encryptedData, shares, sharesThreshold } = params;
+	
+	const validShares = shares.filter(share => share.trim() !== "");
+	if (validShares.length < sharesThreshold) {
+		throw new Error(`Need at least ${sharesThreshold} shares to decrypt`);
+	}
+
+	const keyBytes = await combine(validShares.map(bs58.decode));
+	const key = await crypto.subtle.importKey(
+		"raw",
+		new Uint8Array(keyBytes),
+		{ name: "AES-GCM" },
+		true,
+		["encrypt", "decrypt"],
+	);
+	
+	const encryptedInput = new Uint8Array(bs58.decode(encryptedData));
+	const iv = encryptedInput.slice(0, 12); // First 12 bytes are IV
+	const ciphertext = encryptedInput.slice(12);
+	
+	const decrypted = await crypto.subtle.decrypt(
+		{ name: "AES-GCM", iv },
+		key,
+		ciphertext,
+	);
+	
+	return new TextDecoder().decode(decrypted);
+}

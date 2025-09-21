@@ -16,19 +16,10 @@ export function CryptoFlow() {
 		sharesCount: 3,
 		sharesThreshold: 2,
 	});
-	const [shares, setShares] = useState<string[]>([]);
 	const [activeTab, setActiveTab] = useState<string>("encrypt");
 
 	const handleConfigChange = (newConfig: CryptoFlowConfig) => {
 		setConfig(newConfig);
-		// Clear shares if threshold changes to avoid confusion
-		if (newConfig.sharesThreshold !== config.sharesThreshold) {
-			setShares([]);
-		}
-	};
-
-	const handleSharesGenerated = (newShares: string[]) => {
-		setShares(newShares);
 	};
 
 	return (
@@ -47,14 +38,12 @@ export function CryptoFlow() {
 						<EncryptSecret
 							sharesCount={config.sharesCount}
 							sharesThreshold={config.sharesThreshold}
-							onSharesGenerated={handleSharesGenerated}
 						/>
 					)}
 
 					{activeTab === "decrypt" && (
 						<DecryptSecret
 							sharesThreshold={config.sharesThreshold}
-							availableShares={shares}
 						/>
 					)}
 				</div>

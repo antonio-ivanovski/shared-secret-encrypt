@@ -55,7 +55,7 @@ This application implements a **threshold cryptography** system that allows you 
 
 ### Demo
 
-You can try out the application on the hosted demo site https://antonio-ivanovski.github.io/shared-secret-encrypt/
+You can try out the application on the hosted demo site https://shared-secret-encrypt.tote.mk/
 
 Otherwise, you can jump to [Development](#development) section to run locally.
 
